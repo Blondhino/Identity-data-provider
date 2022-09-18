@@ -61,6 +61,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   
   
   override suspend fun loginWithFacebook() {
+    onAuthProcessActivityChanged.invoke(true)
     if (!FacebookSdk.isInitialized()) {
       @Suppress("DEPRECATION")
       FacebookSdk.sdkInitialize(activity.application)
@@ -69,16 +70,19 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
       val callback = object : FacebookCallback<LoginResult> {
         override fun onCancel() {
           Log.d("LOGIN_FB","canceled")
+          onAuthProcessActivityChanged.invoke(false)
         }
         
         override fun onError(error: FacebookException) {
-          Log.d("LOGIN_FB","error")
+          Log.d("LOGIN_FB","error: "+error.message.toString())
+          onAuthProcessActivityChanged.invoke(false)
         }
         
         override fun onSuccess(result: LoginResult) {
           val token = result.accessToken.token
           val userId = result.accessToken.userId
           Log.d("LOGIN_FB","succ")
+          exchangeToken(token)
         }
       }
       
@@ -109,6 +113,8 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   private fun exchangeToken(token: String) = CoroutineScope(Dispatchers.IO).launch {
     try {
       val resp = api.exchangeTokens("facebook", ExchangeTokenRequest(token))
+      onAuthProcessActivityChanged.invoke(false)
+      onAuthChangedListener.invoke(true)
     } catch (e: Exception) {
       Log.d("error:::", e.message.toString())
     }
