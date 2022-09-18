@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import com.facebook.login.widget.LoginButton
 
 internal interface IdentityDataProviderContract {
-  suspend fun loginWithFacebook()
+  fun loginWithFacebook()
   fun loginWithGoogle()
   fun logout()
   fun isUserAuthenticated():Boolean

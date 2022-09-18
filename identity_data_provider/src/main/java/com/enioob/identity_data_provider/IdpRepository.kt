@@ -60,7 +60,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   }
   
   
-  override suspend fun loginWithFacebook() {
+  override fun loginWithFacebook() {
     onAuthProcessActivityChanged.invoke(true)
     if (!FacebookSdk.isInitialized()) {
       @Suppress("DEPRECATION")

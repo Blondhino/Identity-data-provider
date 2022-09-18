@@ -13,7 +13,7 @@ class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataPr
     repo.onAuthChangedListener = {onAuthChangedListener(it)}
   }
   
-  override suspend fun loginWithFacebook() = repo.loginWithFacebook()
+  override fun loginWithFacebook() = repo.loginWithFacebook()
   
   override fun loginWithGoogle() = repo.loginWithGoogle()
   
