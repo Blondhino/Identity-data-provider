@@ -82,6 +82,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
           val token = result.accessToken.token
           val userId = result.accessToken.userId
           Log.d("LOGIN_FB","succ")
+          onAuthChangedListener.invoke(true)
           exchangeToken(token)
         }
       }
