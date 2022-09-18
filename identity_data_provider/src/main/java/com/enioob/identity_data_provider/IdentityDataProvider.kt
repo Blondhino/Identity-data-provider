@@ -1,6 +1,6 @@
 package com.enioob.identity_data_provider
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 
 class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataProviderContract {
   
@@ -13,7 +13,7 @@ class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataPr
     repo.onAuthChangedListener = {onAuthChangedListener(it)}
   }
   
-  override fun loginWithFacebook(activity: Activity) = repo.loginWithFacebook(activity)
+  override suspend fun loginWithFacebook() = repo.loginWithFacebook()
   
   override fun loginWithGoogle() = repo.loginWithGoogle()
   
@@ -21,6 +21,7 @@ class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataPr
   
   override fun isUserAuthenticated(): Boolean = repo.isUserAuthenticated()
   
+  override fun initializeFacebookLogin(componentActivity: ComponentActivity) = repo.initializeFacebookLogin(componentActivity)
   
   
 }

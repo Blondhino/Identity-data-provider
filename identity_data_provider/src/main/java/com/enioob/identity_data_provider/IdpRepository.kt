@@ -1,11 +1,11 @@
 package com.enioob.identity_data_provider
 
-import android.app.Activity
 import android.util.Log
-import com.facebook.AccessToken
-import com.facebook.CallbackManager.Factory.create
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.lifecycle.lifecycleScope
+import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.moczul.ok2curl.CurlInterceptor
@@ -17,14 +17,16 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.*
 
 
 internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderContract {
   
   var onAuthChangedListener: ((isAuthenticated: Boolean) -> Unit) = {}
   var onAuthProcessActivityChanged: ((isAuthProcessActive: Boolean) -> Unit) = {}
-  
+  private val callbackManager = CallbackManager.Factory.create()
+  private val facebookLoginManager = LoginManager.getInstance()
+  private lateinit var activity: ComponentActivity
+  private lateinit var facebookLoginLauncher: ActivityResultLauncher<Collection<String>>
   private val loggingInterceptor by lazy { HttpLoggingInterceptor() }.apply {
     this.value.level = HttpLoggingInterceptor.Level.BODY
   }
@@ -46,46 +48,43 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
     )
   }
   
-  
-  override fun loginWithFacebook(activity: Activity) {
-/*    onAuthProcessActivityChanged(true)
-    facebookLoginButton.registerCallback(CallbackManager.Factory.create(),object : FacebookCallback<LoginResult> {
-      override fun onCancel() {
-        onAuthProcessActivityChanged(false)
-      }
-    
-      override fun onError(error: FacebookException) {
-        onAuthProcessActivityChanged(false)
-      }
-    
-      override fun onSuccess(result: LoginResult) {
-        onAuthChangedListener.invoke(true)
-        onAuthProcessActivityChanged(false)
-        exchangeToken(result.accessToken.token)
-      }
-    
-    })*/
+  override fun initializeFacebookLogin(componentActivity: ComponentActivity) {
+    this.activity = componentActivity
+    val contract: ActivityResultContract<Collection<String>, CallbackManager.ActivityResultParameters> =
+      facebookLoginManager.createLogInActivityResultContract(callbackManager = callbackManager)
+    componentActivity.lifecycleScope.launchWhenCreated {
+      facebookLoginLauncher = componentActivity.registerForActivityResult(
+        contract
+      ) {}
+    }
+  }
   
   
-    val callbackManager = create()
-  
-    LoginManager.getInstance().registerCallback(callbackManager,
-      object : FacebookCallback<LoginResult>{
+  override suspend fun loginWithFacebook() {
+    if (!FacebookSdk.isInitialized()) {
+      @Suppress("DEPRECATION")
+      FacebookSdk.sdkInitialize(activity.application)
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+      val callback = object : FacebookCallback<LoginResult> {
         override fun onCancel() {
-          Log.d("blabla","alkjdlaj")
+          Log.d("LOGIN_FB","canceled")
         }
-  
+        
         override fun onError(error: FacebookException) {
-          Log.d("blabla","error")
+          Log.d("LOGIN_FB","error")
         }
-  
+        
         override fun onSuccess(result: LoginResult) {
-          Log.d("blabla","succ")
+          val token = result.accessToken.token
+          val userId = result.accessToken.userId
+          Log.d("LOGIN_FB","succ")
         }
-  
-      })
-    
-    LoginManager.getInstance().logInWithReadPermissions(activity, Arrays.asList("public_profile"));
+      }
+      
+      facebookLoginManager.registerCallback(callbackManager,callback)
+      facebookLoginLauncher.launch(emptyList())
+    }
   }
   
   override fun loginWithGoogle() {
@@ -100,7 +99,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   }
   
   override fun isUserAuthenticated(): Boolean {
-    if(AccessToken.getCurrentAccessToken()!=null){
+    if (AccessToken.getCurrentAccessToken() != null) {
       return true
     }
     return false
@@ -109,9 +108,9 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   
   private fun exchangeToken(token: String) = CoroutineScope(Dispatchers.IO).launch {
     try {
-      val resp =  api.exchangeTokens("facebook", ExchangeTokenRequest(token))
-    }catch (e:Exception){
-      Log.d("error:::",e.message.toString())
+      val resp = api.exchangeTokens("facebook", ExchangeTokenRequest(token))
+    } catch (e: Exception) {
+      Log.d("error:::", e.message.toString())
     }
   }
 }

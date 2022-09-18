@@ -38,7 +38,7 @@ afterEvaluate {
         
         groupId = 'com.github.Blondhino'
         artifactId = 'identity-data-provider'
-        version = '0.0.1'
+        version = '0.0.2'
       }
     }
   }
@@ -54,4 +54,5 @@ dependencies {
   implementation "com.squareup.okhttp3:okhttp:4.9.3"
   implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
   implementation 'com.github.mrmike:ok2curl:0.8.0'
+  implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 }
