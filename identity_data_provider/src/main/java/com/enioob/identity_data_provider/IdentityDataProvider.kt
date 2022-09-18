@@ -1,6 +1,6 @@
 package com.enioob.identity_data_provider
 
-import com.facebook.login.widget.LoginButton
+import android.app.Activity
 
 class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataProviderContract {
   
@@ -13,7 +13,7 @@ class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataPr
     repo.onAuthChangedListener = {onAuthChangedListener(it)}
   }
   
-  override fun loginWithFacebook(facebookLoginButton: LoginButton) = repo.loginWithFacebook(facebookLoginButton)
+  override fun loginWithFacebook(activity: Activity) = repo.loginWithFacebook(activity)
   
   override fun loginWithGoogle() = repo.loginWithGoogle()
   

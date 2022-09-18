@@ -1,13 +1,13 @@
 package com.enioob.identity_data_provider
 
+import android.app.Activity
 import android.util.Log
 import com.facebook.AccessToken
-import com.facebook.CallbackManager
+import com.facebook.CallbackManager.Factory.create
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
 import com.moczul.ok2curl.CurlInterceptor
 import com.moczul.ok2curl.logger.Logger
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +17,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.*
+
 
 internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderContract {
   
@@ -45,8 +47,8 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   }
   
   
-  override fun loginWithFacebook(facebookLoginButton: LoginButton) {
-    onAuthProcessActivityChanged(true)
+  override fun loginWithFacebook(activity: Activity) {
+/*    onAuthProcessActivityChanged(true)
     facebookLoginButton.registerCallback(CallbackManager.Factory.create(),object : FacebookCallback<LoginResult> {
       override fun onCancel() {
         onAuthProcessActivityChanged(false)
@@ -62,7 +64,28 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
         exchangeToken(result.accessToken.token)
       }
     
-    })
+    })*/
+  
+  
+    val callbackManager = create()
+  
+    LoginManager.getInstance().registerCallback(callbackManager,
+      object : FacebookCallback<LoginResult>{
+        override fun onCancel() {
+          Log.d("blabla","alkjdlaj")
+        }
+  
+        override fun onError(error: FacebookException) {
+          Log.d("blabla","error")
+        }
+  
+        override fun onSuccess(result: LoginResult) {
+          Log.d("blabla","succ")
+        }
+  
+      })
+    
+    LoginManager.getInstance().logInWithReadPermissions(activity, Arrays.asList("public_profile"));
   }
   
   override fun loginWithGoogle() {
