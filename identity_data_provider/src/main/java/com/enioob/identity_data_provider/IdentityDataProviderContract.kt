@@ -9,5 +9,5 @@ internal interface IdentityDataProviderContract {
   fun loginWithGoogle()
   fun logout()
   fun isUserAuthenticated():Boolean
-  fun initializeFacebookLogin(componentActivity: ComponentActivity)
+  fun registerHostingActivity(componentActivity: ComponentActivity)
 }

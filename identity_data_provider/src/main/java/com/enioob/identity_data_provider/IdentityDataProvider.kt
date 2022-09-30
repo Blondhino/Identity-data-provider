@@ -21,7 +21,7 @@ class IdentityDataProvider(private val backendBaseUrl : String) : IdentityDataPr
   
   override fun isUserAuthenticated(): Boolean = repo.isUserAuthenticated()
   
-  override fun initializeFacebookLogin(componentActivity: ComponentActivity) = repo.initializeFacebookLogin(componentActivity)
+  override fun registerHostingActivity(componentActivity: ComponentActivity) = repo.registerHostingActivity(componentActivity)
   
   
 }
