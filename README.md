@@ -4,8 +4,9 @@
 **Identtity Data provider** (**IDP**) library is created as **wrapper around** most popular authentication strategies such as **login by Google/Facebook/Apple**. It's purpose is to increase development speed and consolidate common strategies into one codebase. Library is open source and free to use !
 
 # How add IDP into project
+<br>
 
- #### 1. Add the following Gradle dependencies:
+ ### 1. Add the following Gradle dependencies:
 
 ```groovy
 repositories {  
@@ -20,8 +21,9 @@ dependencies {
 implementation 'com.github.Blondhino:Identity-data-provider:$latest'
 }
 ```
+<br>
 
-#### 2. Initialize library
+### 2. Initialize library
 
 > IDP requires ComponentActivity so please make sure your hosting
 > activity implements it !
@@ -36,17 +38,18 @@ val identityDataProvider = IdentityDataProvider("backend base url")
   }
 }
 ```
+<br>
+<br>
 
 # Login by Google using IDP
 
 
-First of all you should [configure your Google API console project](https://developers.google.com/identity/sign-in/android/start-integrating#configure_a_project) and get **client id** 
- 
- After that open `strings.xml` file and add following resource with your data:
- 
+First of all you should [configure your Google API console project](https://developers.google.com/identity/sign-in/android/start-integrating#configure_a_project) and get **client id.**  After that open `strings.xml` file and add following resource with your data: 
   ```xml
 <string name="google_client_id"> your google client id </string>
 ```
+
+<br>
 
 To perform login by Google simply call next line :
 
@@ -54,6 +57,7 @@ To perform login by Google simply call next line :
 identityDataProvider.loginWithGoogle()
 ```
 
+<br>
 
 ### Observe authentication state changes:
 
@@ -62,6 +66,8 @@ identityDataProvider.onAuthChangedListener={isAuthenticated ->
  /*your logic here*/
  }
 ```
+
+<br>
 
 ### Get current authentication state: 
 
