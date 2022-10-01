@@ -29,9 +29,9 @@ implementation 'com.github.Blondhino:Identity-data-provider:$latest'
 ```kotlin
 class MainActivity : ComponentActivity() {
 val identityDataProvider = IdentityDataProvider("backend base url")
-//...
+/*...*/
   override fun onCreate(savedInstanceState: Bundle?) {
-   //...
+   /*...*/
      identityDataProvider.registerHostingActivity(this)
   }
 }
@@ -40,7 +40,31 @@ val identityDataProvider = IdentityDataProvider("backend base url")
 # Login by Google using IDP
 
 
+First of all you should [configure your Google API console project](https://developers.google.com/identity/sign-in/android/start-integrating#configure_a_project) and get **client id** 
+ 
+ After that open `strings.xml` file and add following resource with your data:
+ 
+  ```xml
+<string name="google_client_id"> your google client id </string>
+```
 
- 
- 
-  
+To perform login by Google simply call next line :
+
+ ```kotlin
+identityDataProvider.loginWithGoogle()
+```
+
+
+### Observe authentication state changes:
+
+ ```kotlin
+identityDataProvider.onAuthChangedListener={isAuthenticated ->
+ /*your logic here*/
+ }
+```
+
+### Get current authentication state: 
+
+ ```kotlin
+identityDataProvider.isUserAuthenticated()
+```
