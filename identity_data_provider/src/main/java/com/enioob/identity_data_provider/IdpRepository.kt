@@ -39,19 +39,11 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   private lateinit var facebookLoginLauncher: ActivityResultLauncher<Collection<String>>
   private lateinit var loginByGoogleContract: ActivityResultLauncher<Intent>
   private lateinit var googleSignInOptions: GoogleSignInOptions
-  private lateinit var googleClient : GoogleSignInClient
-  private lateinit var googleClientId :String
-  private lateinit var facebookClientToken :String
-  private lateinit var facebookLoginProtoclScheme :String
-  private lateinit var facebookAppId :String
-  
-  
-  init {
-    googleClientId = getStringResourceByName("google_client_id", GOOGLE_CLIENT_ID_NOT_PROVIDED)
-    facebookClientToken = getStringResourceByName("facebook_client_token", FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED)
-    facebookLoginProtoclScheme = getStringResourceByName("fb_login_protocol_scheme", FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED)
-    facebookAppId = getStringResourceByName("facebook_app_id", FACEBOOK_APP_ID_NOT_PROVIDED)
-  }
+  private lateinit var googleClient: GoogleSignInClient
+  private lateinit var googleClientId: String
+  private lateinit var facebookClientToken: String
+  private lateinit var facebookLoginProtoclScheme: String
+  private lateinit var facebookAppId : String
   
   private val loggingInterceptor by lazy { HttpLoggingInterceptor() }.apply {
     this.value.level = HttpLoggingInterceptor.Level.BODY
@@ -76,6 +68,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   
   override fun registerHostingActivity(componentActivity: ComponentActivity) {
     this.activity = componentActivity
+    initializeResources()
     val contract: ActivityResultContract<Collection<String>, CallbackManager.ActivityResultParameters> =
       facebookLoginManager.createLogInActivityResultContract(callbackManager = callbackManager)
     componentActivity.lifecycleScope.launchWhenCreated {
@@ -93,7 +86,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
         }
         onAuthProcessActivityChanged(false)
       }
-  
+    
     googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
       .requestEmail()
       .requestIdToken(googleClientId)
@@ -102,13 +95,20 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
     
   }
   
+  private fun initializeResources() {
+    googleClientId = getStringResourceByName("google_client_id", GOOGLE_CLIENT_ID_NOT_PROVIDED)
+    facebookClientToken = getStringResourceByName("facebook_client_token", FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED)
+    facebookLoginProtoclScheme = getStringResourceByName("fb_login_protocol_scheme", FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED)
+    facebookAppId = getStringResourceByName("facebook_app_id", FACEBOOK_APP_ID_NOT_PROVIDED)
+  }
+  
   private fun handleLoginByGoogleSdkResult(completedTask: Task<GoogleSignInAccount>) {
     try {
       val account = completedTask.getResult(ApiException::class.java)
       Log.d("LOGIN_GOOGLE", "succ: " + account.idToken)
       account?.idToken?.let {
         onAuthChangedListener(true)
-        exchangeToken(it,"google")
+        exchangeToken(it, "google")
       }
     } catch (e: ApiException) {
       Log.d("LOGIN_GOOGLE", "signInResult:failed code=" + e.statusCode)
@@ -116,15 +116,21 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   }
   
   override fun loginWithFacebook() {
-    if(facebookAppId == facebookAppId){
-      throw IdpCredentialsException("Looks like you are trying to use facebook login without providing facebook_app_id. " +
-        "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info")
-    }else if(facebookLoginProtoclScheme == FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED){
-      throw IdpCredentialsException("Looks like you are trying to use facebook login without providing fb_login_protocol_scheme. " +
-        "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info")
-    }else if(facebookClientToken == FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED){
-      throw IdpCredentialsException("Looks like you are trying to use facebook login without providing facebook_client_token. " +
-        "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info")
+    if (facebookAppId == FACEBOOK_APP_ID_NOT_PROVIDED) {
+      throw IdpCredentialsException(
+        "Looks like you are trying to use facebook login without providing facebook_app_id. " +
+          "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info"
+      )
+    } else if (facebookLoginProtoclScheme == FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED) {
+      throw IdpCredentialsException(
+        "Looks like you are trying to use facebook login without providing fb_login_protocol_scheme. " +
+          "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info"
+      )
+    } else if (facebookClientToken == FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED) {
+      throw IdpCredentialsException(
+        "Looks like you are trying to use facebook login without providing facebook_client_token. " +
+          "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info"
+      )
     }
     
     onAuthProcessActivityChanged.invoke(true)
@@ -150,7 +156,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
           Log.d("LOGIN_FB", "succ")
           onAuthChangedListener.invoke(true)
           onAuthProcessActivityChanged.invoke(false)
-          exchangeToken(token,"facebook")
+          exchangeToken(token, "facebook")
         }
       }
       
@@ -160,9 +166,11 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   }
   
   override fun loginWithGoogle() {
-    if(googleClientId == GOOGLE_CLIENT_ID_NOT_PROVIDED){
-      throw IdpCredentialsException("Looks like you are trying to use google login without providing google_client_id. " +
-        "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info")
+    if (googleClientId == GOOGLE_CLIENT_ID_NOT_PROVIDED) {
+      throw IdpCredentialsException(
+        "Looks like you are trying to use google login without providing google_client_id. " +
+          "Read https://github.com/Blondhino/Identity-data-provider/blob/master/README for more info"
+      )
     }
     onAuthProcessActivityChanged(true)
     val signInIntent = googleClient.signInIntent
@@ -180,7 +188,7 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
   
   override fun isUserAuthenticated(): Boolean {
     
-    if (AccessToken.getCurrentAccessToken() != null || GoogleSignIn.getLastSignedInAccount(activity)!=null) {
+    if (AccessToken.getCurrentAccessToken() != null || GoogleSignIn.getLastSignedInAccount(activity) != null) {
       return true
     }
     return false
@@ -197,20 +205,21 @@ internal class IdpRepository(val backendBaseUrl: String) : IdentityDataProviderC
     }
   }
   
-  private fun getStringResourceByName(aString: String, fallbackString : String): String {
+  private fun getStringResourceByName(aString: String, fallbackString: String): String {
     try {
-      val packageName: String = activity.getPackageName()
-      val resId: Int = activity.getResources().getIdentifier(aString, "string", packageName)
+      val packageName: String = activity.packageName
+      val resId: Int = activity.resources.getIdentifier(aString, "string", packageName)
       return activity.getString(resId)
     } catch (e: Exception) {
-    return fallbackString
+      Log.d("stringError", "called")
+      return fallbackString
     }
   }
   
-  private companion object{
-    const val GOOGLE_CLIENT_ID_NOT_PROVIDED ="googleClientIdIsNotProvided"
-    const val FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED ="facebookClientTokenIsNotProvided"
-    const val FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED ="facebookLoginProtocolSchemeIsNotProvided"
-    const val FACEBOOK_APP_ID_NOT_PROVIDED ="facebookAppIdIsNotProvided"
+  private companion object {
+    const val GOOGLE_CLIENT_ID_NOT_PROVIDED = "googleClientIdIsNotProvided"
+    const val FACEBOOK_CLIENT_TOKEN_NOT_PROVIDED = "facebookClientTokenIsNotProvided"
+    const val FACEBOOK_LOGIN_PROTOCOL_SCHEME_NOT_PROVIDED = "facebookLoginProtocolSchemeIsNotProvided"
+    const val FACEBOOK_APP_ID_NOT_PROVIDED = "facebookAppIdIsNotProvided"
   }
 }
