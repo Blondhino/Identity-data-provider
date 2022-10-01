@@ -62,7 +62,7 @@ identityDataProvider.loginWithGoogle()
 ### Observe authentication state changes:
 
  ```kotlin
-identityDataProvider.onAuthChangedListener={isAuthenticated ->
+identityDataProvider.onAuthChangedListener = { isAuthenticated ->
  /*your logic here*/
  }
 ```
@@ -129,7 +129,7 @@ identityDataProvider.loginWithFacebook()
 ### Observe authentication state changes:
 
  ```kotlin
-identityDataProvider.onAuthChangedListener={isAuthenticated ->
+identityDataProvider.onAuthChangedListener = { isAuthenticated ->
  /*your logic here*/
  }
 ```
