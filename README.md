@@ -3,6 +3,9 @@
 
 **Identtity Data provider** (**IDP**) library is created as **wrapper around** most popular authentication strategies such as **login by Google/Facebook/Apple**. It's purpose is to increase development speed and consolidate common strategies into one codebase. Library is open source and free to use !
 
+<br>
+<br>
+
 # How to add IDP into project
 <br>
 
