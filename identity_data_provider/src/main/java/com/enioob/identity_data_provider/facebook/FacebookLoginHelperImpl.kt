@@ -1,4 +1,4 @@
-package com.enioob.identity_data_provider
+package com.enioob.identity_data_provider.facebook
 
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -16,6 +16,7 @@ class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) 
   private val callbackManager = CallbackManager.Factory.create()
   private val facebookLoginManager = LoginManager.getInstance()
   private lateinit var facebookLoginLauncher: ActivityResultLauncher<Collection<String>>
+  private var facebookLoginListener : FacebookLoginListener? = null
   private var contract: ActivityResultContract<Collection<String>, CallbackManager.ActivityResultParameters> =
     facebookLoginManager.createLogInActivityResultContract(callbackManager = callbackManager)
   
@@ -27,18 +28,14 @@ class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) 
     }
     
   }
-
   
+   override fun registerFacebookLoginListener(facebookLoginListener: FacebookLoginListener){
+    this.facebookLoginListener = facebookLoginListener
+  }
   
-  override fun loginByFacebook(
-    onProcessStart: () -> Unit,
-    onProcessEnd: () -> Unit,
-    onSuccess: (sdkToken: String) -> Unit,
-    onError: (error: String) -> Unit
-  ) {
-  
+  override fun loginByFacebook() {
     
-    onProcessStart()
+    facebookLoginListener?.onLoginProcessStart()
     if (!FacebookSdk.isInitialized()) {
       @Suppress("DEPRECATION")
       FacebookSdk.sdkInitialize(componentActivity.application)
@@ -47,24 +44,25 @@ class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) 
       val callback = object : FacebookCallback<LoginResult> {
         override fun onCancel() {
           Log.d("LOGIN_FB", "canceled")
-          onProcessEnd()
+          facebookLoginListener?.onLoginProcessEnd()
         }
-      
+        
         override fun onError(error: FacebookException) {
           Log.d("LOGIN_FB", "error: " + error.message.toString())
-          onProcessEnd()
-          onError(error.message.toString())
+          facebookLoginListener?.onLoginProcessEnd()
+          facebookLoginListener?.onError(error.message.toString())
         }
-      
+        
         override fun onSuccess(result: LoginResult) {
           val token = result.accessToken.token
           val userId = result.accessToken.userId
           Log.d("LOGIN_FB", "succ")
-          onProcessEnd()
-          onSuccess(token)
+          facebookLoginListener?.onLoginProcessEnd()
+          facebookLoginListener?.onSuccess(token)
         }
       }
-    
+      
+      facebookLoginManager.logInWithReadPermissions(componentActivity, arrayListOf("email"))
       facebookLoginManager.registerCallback(callbackManager, callback)
       facebookLoginLauncher.launch(emptyList())
     }

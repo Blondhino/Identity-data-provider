@@ -1,5 +1,7 @@
 package com.enioob.identity_data_provider
 
+import com.enioob.identity_data_provider.google.GoogleLoginListener
+
 interface GoogleLoginHelper {
   fun loginByGoogle()
   fun registerListener(listener : GoogleLoginListener)
@@ -7,9 +9,3 @@ interface GoogleLoginHelper {
   fun googleLogout()
 }
 
-interface GoogleLoginListener {
-  fun onSuccess(sdkToken : String)
-  fun onError(error : String)
-  fun onLoginProcessStart()
-  fun onLoginProcessEnd()
-}
