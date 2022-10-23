@@ -8,8 +8,7 @@ import retrofit2.http.Path
 internal interface TokenApi {
 
   @POST("social/{provider}/exchange-token")
-  suspend fun exchangeTokens(@Path("provider") provider : String, @Body exchangeTokenRequest: ExchangeTokenRequest) :
-    Result<LoginResponse>
+  suspend fun exchangeTokens(@Path("provider") provider : String, @Body exchangeTokenRequest: ExchangeTokenRequest) : LoginResponse
 }
 
 internal data class ExchangeTokenRequest(
