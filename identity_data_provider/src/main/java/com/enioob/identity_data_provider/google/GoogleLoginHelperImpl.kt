@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.enioob.identity_data_provider.GoogleLoginHelper
 import com.enioob.identity_data_provider.utils.IdpCredentialsException
 import com.enioob.identity_data_provider.getStringResourceByName
+import com.enioob.identity_data_provider.utils.GOOGLE_CLIENT_ID
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -22,7 +23,7 @@ class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) : GoogleLo
   private var googleSignInOptions: GoogleSignInOptions
   private var googleClient: GoogleSignInClient
   private var googleClientId: String =
-    getStringResourceByName(componentActivity, "google_client_id", GOOGLE_CLIENT_ID_NOT_PROVIDED)
+    getStringResourceByName(componentActivity, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_ID_NOT_PROVIDED)
   private lateinit var listener: GoogleLoginListener
   
   

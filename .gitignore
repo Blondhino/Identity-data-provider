@@ -15,3 +15,5 @@
 local.properties
 /.idea/deploymentTargetDropDown.xml
 
+/app/src/main/java/com/enioob/identity_data_provider/MainActivity.kt
+/app/src/main/res/layout/activity_main.xml
