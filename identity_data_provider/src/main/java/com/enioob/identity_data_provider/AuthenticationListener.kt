@@ -6,5 +6,6 @@ interface AuthenticationListener {
   fun onRegister()
   fun onLogOut()
   fun onPasswordReset()
+  fun onVerificationEmailResent()
   fun onError(message : String)
 }

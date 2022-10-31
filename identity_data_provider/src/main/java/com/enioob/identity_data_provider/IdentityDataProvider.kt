@@ -118,6 +118,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     }
   }
   
+  override fun resendVerificationEmail(email: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+     idpRepository.resendVerificationEmail(email)
+       .onSuccess {  }
+       .onFailure { authListener?.onError(it.message.toString()) }
+    }
+  }
+  
   private fun registerGoogleAuthListeners() {
     
     googleLoginHelper.registerListener(object : GoogleLoginListener {

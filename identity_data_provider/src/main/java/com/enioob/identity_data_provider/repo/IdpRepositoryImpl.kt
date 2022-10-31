@@ -1,11 +1,11 @@
 package com.enioob.identity_data_provider.repo
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import com.enioob.identity_data_provider.ExchangeTokenRequest
 import com.enioob.identity_data_provider.GoogleTokenResponse
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.RegisterMutation
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.ResendVerificationEmailMutation
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.ResetLoggedUserPasswordMutation
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.LoginInputType
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.RegistrationInputType
@@ -71,9 +71,7 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   }
   
   override suspend fun resetLoggedUserPassword(
-    password: String,
-    confirmedPassword: String,
-    oldPassword: String
+    password: String, confirmedPassword: String, oldPassword: String
   ): Result<ResetLoggedUserPasswordMutation.Data> {
     return safeGraphCall {
       networking.apolloClient.mutation(
@@ -84,6 +82,10 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
         )
       )
     }
+  }
+  
+  override suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data> {
+    return safeGraphCall { networking.apolloClient.mutation(ResendVerificationEmailMutation(email)) }
   }
   
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {
