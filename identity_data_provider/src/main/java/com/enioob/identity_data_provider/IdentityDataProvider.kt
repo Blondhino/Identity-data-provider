@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstract {
+class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContract {
   private lateinit var googleLoginHelper: GoogleLoginHelper
   private lateinit var facebookLoginHelper: FacebookLoginHelper
   private lateinit var componentActivity: ComponentActivity
@@ -47,14 +47,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
     registerFacebookAuthListeners()
   }
   
-  private fun registerFacebookAuthListeners(){
+  private fun registerFacebookAuthListeners() {
     facebookLoginHelper.registerFacebookLoginListener(object : FacebookLoginListener {
       override fun onSuccess(sdkToken: String) {
         exchangeTokens(sdkToken, AuthProvider.FACEBOOK)
       }
       
       override fun onError(error: String) {
-          authListener?.onError(error)
+        authListener?.onError(error)
       }
       
       override fun onLoginProcessStart() {
@@ -68,7 +68,7 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
     })
   }
   
-  private fun exchangeTokens(sdkToken: String, authProvider: AuthProvider) = CoroutineScope(Dispatchers.Main).launch{
+  private fun exchangeTokens(sdkToken: String, authProvider: AuthProvider) = CoroutineScope(Dispatchers.Main).launch {
     idpRepository.exchangeTokens(sdkToken, authProvider)
       .onSuccess {
         authListener?.onLoadingStatusChanged(false)
@@ -86,6 +86,26 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
     authListener = authenticationListener
   }
   
+  override fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      authListener?.onLoadingStatusChanged(true)
+      idpRepository.registerByEmailAndPassword(email, password, confirmedPassword)
+        .onSuccess { authListener?.onRegister() }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+      authListener?.onLoadingStatusChanged(false)
+    }
+  }
+  
+  override fun loginByEmailAndPassword(email: String, password: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      authListener?.onLoadingStatusChanged(true)
+      idpRepository.loginByEmailAndPassword(email, password)
+        .onSuccess { authListener?.onLogIn() }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+      authListener?.onLoadingStatusChanged(false)
+    }
+  }
+  
   private fun registerGoogleAuthListeners() {
     
     googleLoginHelper.registerListener(object : GoogleLoginListener {
@@ -95,6 +115,7 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
       
       override fun onError(error: String) {
         authListener?.onError(error)
+        onLoginProcessEnd()
       }
       
       override fun onLoginProcessStart() {

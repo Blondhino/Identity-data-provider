@@ -1,6 +1,7 @@
 package com.enioob.identity_data_provider.networking
 
 import android.util.Log
+import com.apollographql.apollo3.ApolloClient
 import com.enioob.identity_data_provider.GoogleApi
 import com.enioob.identity_data_provider.TokenApi
 import com.moczul.ok2curl.CurlInterceptor
@@ -43,5 +44,10 @@ internal class NetworkingModule(backendBaseUrl: String) {
     )
   }
   
+  val apolloClient by lazy {
+    ApolloClient.Builder()
+      .serverUrl("https://idp-7lx4w6qtva-ew.a.run.app/graphql")
+      .build()
+  }
   
 }

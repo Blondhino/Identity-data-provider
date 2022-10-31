@@ -6,7 +6,7 @@ import retrofit2.http.*
 internal interface GoogleApi {
   
   @FormUrlEncoded
-  @POST("oauth2/v4/accessToken")
+  @POST("oauth2/v4/token")
   suspend fun getAccessToken(
     @Field("grant_type") grantType: String,
     @Field("client_id") clientId: String,
