@@ -6,6 +6,7 @@ import com.enioob.identity_data_provider.facebook.FacebookLoginHelperImpl
 import com.enioob.identity_data_provider.facebook.FacebookLoginListener
 import com.enioob.identity_data_provider.google.GoogleLoginHelperImpl
 import com.enioob.identity_data_provider.google.GoogleLoginListener
+import com.enioob.identity_data_provider.model.LoginResponse
 import com.enioob.identity_data_provider.repo.IdpRepository
 import com.enioob.identity_data_provider.repo.IdpRepositoryImpl
 import com.enioob.identity_data_provider.utils.AuthProvider
@@ -100,7 +101,10 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     CoroutineScope(Dispatchers.Main).launch {
       authListener?.onLoadingStatusChanged(true)
       idpRepository.loginByEmailAndPassword(email, password)
-        .onSuccess { authListener?.onLogIn() }
+        .onSuccess {
+          authListener?.onLogIn()
+          idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
+        }
         .onFailure { authListener?.onError(it.message.orEmpty()) }
       authListener?.onLoadingStatusChanged(false)
     }
