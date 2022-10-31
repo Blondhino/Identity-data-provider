@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) : FacebookLoginHelper {
+internal class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) : FacebookLoginHelper {
   private val callbackManager = CallbackManager.Factory.create()
   private val facebookLoginManager = LoginManager.getInstance()
   private lateinit var facebookLoginLauncher: ActivityResultLauncher<Collection<String>>
@@ -43,12 +43,10 @@ class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) 
     CoroutineScope(Dispatchers.IO).launch {
       val callback = object : FacebookCallback<LoginResult> {
         override fun onCancel() {
-          Log.d("LOGIN_FB", "canceled")
           facebookLoginListener?.onLoginProcessEnd()
         }
         
         override fun onError(error: FacebookException) {
-          Log.d("LOGIN_FB", "error: " + error.message.toString())
           facebookLoginListener?.onLoginProcessEnd()
           facebookLoginListener?.onError(error.message.toString())
         }
@@ -56,7 +54,6 @@ class FacebookLoginHelperImpl(private val componentActivity: ComponentActivity) 
         override fun onSuccess(result: LoginResult) {
           val token = result.accessToken.token
           val userId = result.accessToken.userId
-          Log.d("LOGIN_FB", "succ")
           facebookLoginListener?.onLoginProcessEnd()
           facebookLoginListener?.onSuccess(token)
         }

@@ -1,6 +1,6 @@
 package com.enioob.identity_data_provider.facebook
 
-interface FacebookLoginListener {
+internal interface FacebookLoginListener {
   fun onSuccess(sdkToken : String)
   fun onError(error : String)
   fun onLoginProcessStart()

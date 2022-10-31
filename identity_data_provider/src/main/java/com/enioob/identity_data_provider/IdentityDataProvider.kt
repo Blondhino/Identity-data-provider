@@ -31,11 +31,12 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
   override fun logout() {
     googleLoginHelper.googleLogout()
     facebookLoginHelper.facebookLogout()
+    idpRepository.logout()
     authListener?.onLogOut()
   }
   
   override fun isUserAuthenticated(): Boolean {
-    return (googleLoginHelper.isUserAuthenticatedWithGoogle() || facebookLoginHelper.isUserAuthenticatedWithFacebook())
+    return idpRepository.isUserAuthenticated()
   }
   
   override fun registerHostingActivity(componentActivity: ComponentActivity) {
@@ -69,8 +70,13 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderConstra
   
   private fun exchangeTokens(sdkToken: String, authProvider: AuthProvider) = CoroutineScope(Dispatchers.Main).launch{
     idpRepository.exchangeTokens(sdkToken, authProvider)
-      .onSuccess { authListener?.onLogIn() }
+      .onSuccess {
+        authListener?.onLoadingStatusChanged(false)
+        authListener?.onLogIn()
+        idpRepository.saveTokens(it)
+      }
       .onFailure {
+        authListener?.onLoadingStatusChanged(false)
         authListener?.onError(it.message.toString())
         
       }

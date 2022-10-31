@@ -18,7 +18,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 
 
-class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) : GoogleLoginHelper {
+internal class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) : GoogleLoginHelper {
   private var loginByGoogleContract: ActivityResultLauncher<Intent>
   private var googleSignInOptions: GoogleSignInOptions
   private var googleClient: GoogleSignInClient
@@ -59,7 +59,7 @@ class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) : GoogleLo
     try {
       listener.onLoginProcessStart()
     } catch (e: Exception) {
-      Log.d("LOGIN_GOOGLE", e.message.toString())
+      listener.onError(e.message.toString())
     }
     
     val signInIntent = googleClient.signInIntent
@@ -83,15 +83,14 @@ class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) : GoogleLo
         try {
           exchangeAuthCodeForToken(it)
         } catch (e: Exception) {
-          Log.d("LOGIN_GOOGLE", e.message.toString())
+          listener.onError(e.message.toString())
         }
       }
     } catch (e: ApiException) {
-      Log.d("LOGIN_GOOGLE", "signInResult:failed code=" + e.statusCode)
       try {
         listener.onError(e.statusCode.toString())
       } catch (e: Exception) {
-        Log.d("GOOGLE_ERROR", e.message.toString())
+        listener.onError(e.message.toString())
       }
     }
   }

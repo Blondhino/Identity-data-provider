@@ -1,3 +1,3 @@
 package com.enioob.identity_data_provider.utils
 
-class IdpCredentialsException (message : String) : Exception(message)
+internal class IdpCredentialsException (message : String) : Exception(message)

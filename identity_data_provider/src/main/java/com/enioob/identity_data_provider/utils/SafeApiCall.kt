@@ -1,6 +1,6 @@
 package com.enioob.identity_data_provider.utils
 
-class SafeApiCall() {
+internal class SafeApiCall() {
   suspend operator fun <SuccessModel : Any> invoke(
     apiCall: suspend () -> SuccessModel
   ): Result<SuccessModel> {

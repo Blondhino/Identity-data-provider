@@ -2,7 +2,7 @@ package com.enioob.identity_data_provider
 
 import androidx.activity.ComponentActivity
 
-interface IdentityDataProviderConstract {
+internal interface IdentityDataProviderConstract {
   fun loginWithFacebook()
   fun loginWithGoogle()
   fun logout()

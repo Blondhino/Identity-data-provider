@@ -1,0 +1,257 @@
+enum FilterOperator {
+  eq
+
+  lte
+
+  lt
+
+  gte
+
+  gt
+
+  exact_contains
+
+  loose_contains
+
+  between
+
+  isNull
+}
+
+enum LogicalOperator {
+  or
+
+  and
+}
+
+enum SortDirection {
+  asc
+
+  desc
+}
+
+enum SortNulls {
+  first
+
+  last
+}
+
+enum UserStatus {
+  unverified
+
+  verified
+
+  trusted
+}
+
+enum SocialProvider {
+  facebook
+
+  google
+}
+
+scalar FilterValue
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input FilterInput {
+  key: String!
+
+  operator: FilterOperator
+
+  value: FilterValue!
+
+  invert: Boolean
+
+  allowNull: Boolean
+}
+
+input ScopeInput {
+  operator: LogicalOperator
+
+  filters: [FilterInput!]
+
+  scopes: [ScopeInput!]
+}
+
+input SortInput {
+  key: String!
+
+  direction: SortDirection
+
+  nulls: SortNulls
+}
+
+input PaginationInput {
+  cursor: Int
+
+  limit: Int
+}
+
+input SearchInput {
+  term: String
+}
+
+input QueryInput {
+  scope: ScopeInput
+
+  filters: [FilterInput!]
+
+  sort: [SortInput!]
+
+  pagination: PaginationInput
+
+  search: SearchInput
+}
+
+type PaginationOutput {
+  total: Int!
+
+  cursor: Int!
+
+  has_next: Boolean!
+}
+
+type GenerateTokenOutput {
+  accessToken: String!
+
+  refreshToken: String!
+}
+
+input RegistrationInputType {
+  email: String!
+
+  password: String!
+
+  password_confirmed: String!
+}
+
+input ResetForgottenPasswordInputTypes {
+  token: String!
+
+  password: String!
+
+  password_confirmed: String!
+}
+
+input ResetLoggedUserPasswordInputTypes {
+  password: String!
+
+  password_confirmed: String!
+
+  old_password: String!
+}
+
+input LoginInputType {
+  email: String!
+
+  password: String!
+}
+
+enum UserFilterKey {
+  id
+
+  created_at
+
+  updated_at
+
+  email
+
+  phone
+
+  name
+
+  nick_name
+
+  avatar_url
+
+  claims
+
+  status
+
+  gdpr_deleted_at
+}
+
+input UserInputType {
+  email: String
+
+  phone: String
+
+  name: String
+
+  nick_name: String
+
+  avatar_url: String
+
+  claims: String
+
+  status: UserStatus!
+}
+
+type UserOutputType {
+  id: ID!
+
+  created_at: String!
+
+  updated_at: String!
+
+  email: String
+
+  phone: String
+
+  name: String
+
+  nick_name: String
+
+  avatar_url: String
+
+  claims: String
+
+  status: UserStatus!
+}
+
+type PaginatedUserOutputType {
+  pagination: PaginationOutput!
+
+  data: [UserOutputType!]!
+}
+
+type Query {
+  user_query(query: QueryInput): PaginatedUserOutputType!
+
+  user_details(id: ID!): UserOutputType!
+
+  me: UserOutputType
+}
+
+type Mutation {
+  user_create(input: UserInputType!): UserOutputType!
+
+  user_update(id: ID!, input: UserInputType!): UserOutputType!
+
+  user_delete(id: ID!): UserOutputType!
+
+  reset_logged_user_password(input: ResetLoggedUserPasswordInputTypes!): Boolean
+
+  register(input: RegistrationInputType): UserOutputType
+
+  verify_email(token: String!): UserOutputType
+
+  resend_verification_email(email: String!): Boolean
+
+  forgot_password(email: String!): Boolean!
+
+  reset_forgotten_password(input: ResetForgottenPasswordInputTypes!): Boolean!
+
+  login(input: LoginInputType): GenerateTokenOutput!
+
+  refresh_token(refresh_token: String!): GenerateTokenOutput!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
