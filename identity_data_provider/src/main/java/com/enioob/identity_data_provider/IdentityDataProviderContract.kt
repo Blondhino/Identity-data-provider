@@ -13,6 +13,7 @@ internal interface IdentityDataProviderContract {
   fun loginByEmailAndPassword(email: String, password: String)
   fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String)
   fun resendVerificationEmail(email: String)
-  fun verifyEmail(token : String)
-  fun forgotPassword(email : String)
+  fun verifyEmail(token: String)
+  fun forgotPassword(email: String)
+  fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
 }

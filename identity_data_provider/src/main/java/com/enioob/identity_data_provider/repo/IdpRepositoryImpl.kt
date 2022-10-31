@@ -6,6 +6,7 @@ import com.enioob.identity_data_provider.GoogleTokenResponse
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.*
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.LoginInputType
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.RegistrationInputType
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetForgottenPasswordInputTypes
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetLoggedUserPasswordInputTypes
 import com.enioob.identity_data_provider.getStringResourceByName
 import com.enioob.identity_data_provider.model.IdpUser
@@ -89,20 +90,35 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   
   override suspend fun verifyEmail(token: String): Result<IdpUser> {
     safeGraphCall { networking.apolloClient.mutation(VerifyEmailMutation(token)) }.onSuccess {
-        return Result.success(
-          it.verify_email?.userFragment?.toIdpUser() ?: IdpUser()
-        )
-      }.onFailure { return Result.failure(it) }
+      return Result.success(
+        it.verify_email?.userFragment?.toIdpUser() ?: IdpUser()
+      )
+    }.onFailure { return Result.failure(it) }
     return Result.failure(Throwable(UNKNOWN_ERROR))
   }
   
   override suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data> {
-  return safeGraphCall {networking.apolloClient.mutation(ForgotPasswordMutation(email))}
+    return safeGraphCall { networking.apolloClient.mutation(ForgotPasswordMutation(email)) }
   }
   
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {
     return safeGraphCall {
       networking.apolloClient.mutation(LoginMutation(LoginInputType(email, password)))
+    }
+  }
+  
+  override suspend fun resetForgottenPassword(
+    token: String,
+    password: String,
+    confirmedPassword: String
+  ): Result<ResetForgottenPasswordMutation.Data> {
+    return safeGraphCall {
+      networking.apolloClient.mutation(
+        ResetForgottenPasswordMutation(
+          ResetForgottenPasswordInputTypes
+            (token, password, confirmedPassword)
+        )
+      )
     }
   }
   

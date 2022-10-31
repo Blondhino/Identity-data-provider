@@ -13,15 +13,22 @@ internal interface IdpRepository {
   fun getAccessToken(): String
   fun getRefreshToken(): String
   suspend fun registerByEmailAndPassword(
-    email: String,
-    password: String,
-    confirmedPassword: String
+    email: String, password: String, confirmedPassword: String
   ): Result<IdpUser>
   
   suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data>
-  suspend fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String): Result
-  <ResetLoggedUserPasswordMutation.Data>
-  suspend fun resendVerificationEmail(email: String) : Result<ResendVerificationEmailMutation.Data>
-  suspend fun verifyEmail(token: String) : Result<IdpUser>
-  suspend fun forgotPassword(email: String) : Result<ForgotPasswordMutation.Data>
+  suspend fun resetLoggedUserPassword(
+    password: String,
+    confirmedPassword: String,
+    oldPassword: String
+  ): Result<ResetLoggedUserPasswordMutation.Data>
+  
+  suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data>
+  suspend fun verifyEmail(token: String): Result<IdpUser>
+  suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data>
+  suspend fun resetForgottenPassword(
+    token: String,
+    password: String,
+    confirmedPassword: String
+  ): Result<ResetForgottenPasswordMutation.Data>
 }

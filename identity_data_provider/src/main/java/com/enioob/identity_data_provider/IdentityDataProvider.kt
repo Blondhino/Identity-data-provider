@@ -129,7 +129,15 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   override fun forgotPassword(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.forgotPassword(email)
-        .onSuccess { authListener?.onForgotPasswordMailSent()}
+        .onSuccess { authListener?.onForgotPasswordMailSent() }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+    }
+  }
+  
+  override fun resetForgottenPassword(token: String, password: String, confirmedPassword: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.resetForgottenPassword(token, password, confirmedPassword)
+        .onSuccess { }
         .onFailure { authListener?.onError(it.message.orEmpty()) }
     }
   }
@@ -137,7 +145,7 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   override fun resendVerificationEmail(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resendVerificationEmail(email)
-        .onSuccess { }
+        .onSuccess { authListener?.onForgottenPasswordReset() }
         .onFailure { authListener?.onError(it.message.toString()) }
     }
   }
