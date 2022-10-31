@@ -3,15 +3,14 @@ package com.enioob.identity_data_provider.repo
 import androidx.activity.ComponentActivity
 import com.enioob.identity_data_provider.ExchangeTokenRequest
 import com.enioob.identity_data_provider.GoogleTokenResponse
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.RegisterMutation
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.ResendVerificationEmailMutation
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.ResetLoggedUserPasswordMutation
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.*
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.LoginInputType
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.RegistrationInputType
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetLoggedUserPasswordInputTypes
 import com.enioob.identity_data_provider.getStringResourceByName
+import com.enioob.identity_data_provider.model.IdpUser
 import com.enioob.identity_data_provider.model.LoginResponse
+import com.enioob.identity_data_provider.model.toIdpUser
 import com.enioob.identity_data_provider.networking.NetworkingModule
 import com.enioob.identity_data_provider.persistence.EncryptedPrefsModule
 import com.enioob.identity_data_provider.utils.*
@@ -62,12 +61,12 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   
   override suspend fun registerByEmailAndPassword(
     email: String, password: String, confirmedPassword: String
-  ): Result<RegisterMutation.Data> {
-    return safeGraphCall {
-      networking.apolloClient.mutation(
-        RegisterMutation(RegistrationInputType(email, password, confirmedPassword))
-      )
-    }
+  ): Result<IdpUser> {
+    safeGraphCall {
+      networking.apolloClient.mutation(RegisterMutation(RegistrationInputType(email, password, confirmedPassword)))
+    }.onSuccess { return Result.success(it.register?.userFragment?.toIdpUser() ?: IdpUser()) }
+      .onFailure { return Result.failure(it) }
+    return Result.failure(Throwable(UNKNOWN_ERROR))
   }
   
   override suspend fun resetLoggedUserPassword(
@@ -86,6 +85,15 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   
   override suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data> {
     return safeGraphCall { networking.apolloClient.mutation(ResendVerificationEmailMutation(email)) }
+  }
+  
+  override suspend fun verifyEmail(token: String): Result<IdpUser> {
+    safeGraphCall { networking.apolloClient.mutation(VerifyEmailMutation(token)) }.onSuccess {
+        return Result.success(
+          it.verify_email?.userFragment?.toIdpUser() ?: IdpUser()
+        )
+      }.onFailure { return Result.failure(it) }
+    return Result.failure(Throwable(UNKNOWN_ERROR))
   }
   
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {

@@ -1,0 +1,17 @@
+mutation VerifyEmail($token: String!) {
+    verify_email(token: $token) {
+        ...userFragment
+    }
+}
+fragment userFragment on UserOutputType{
+    id
+    created_at
+    updated_at
+    email
+    phone
+    name
+    nick_name
+    avatar_url
+    claims
+    status
+}

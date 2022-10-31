@@ -91,7 +91,7 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     CoroutineScope(Dispatchers.Main).launch {
       authListener?.onLoadingStatusChanged(true)
       idpRepository.registerByEmailAndPassword(email, password, confirmedPassword)
-        .onSuccess { authListener?.onRegister() }
+        .onSuccess { authListener?.onRegister(it) }
         .onFailure { authListener?.onError(it.message.orEmpty()) }
       authListener?.onLoadingStatusChanged(false)
     }
@@ -118,11 +118,19 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     }
   }
   
+  override fun verifyEmail(token: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.verifyEmail(token)
+        .onSuccess { authListener?.onEmailVerified(it) }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+    }
+  }
+  
   override fun resendVerificationEmail(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
-     idpRepository.resendVerificationEmail(email)
-       .onSuccess {  }
-       .onFailure { authListener?.onError(it.message.toString()) }
+      idpRepository.resendVerificationEmail(email)
+        .onSuccess { }
+        .onFailure { authListener?.onError(it.message.toString()) }
     }
   }
   
