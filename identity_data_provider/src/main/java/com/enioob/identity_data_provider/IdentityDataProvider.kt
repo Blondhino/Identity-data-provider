@@ -146,6 +146,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     }
   }
   
+  override fun deleteUser(userId: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.deleteUser(userId)
+        .onSuccess { authListener?.onUserDeleted() }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+    }
+  }
+  
   override fun resendVerificationEmail(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resendVerificationEmail(email).onSuccess { authListener?.onForgottenPasswordReset() }

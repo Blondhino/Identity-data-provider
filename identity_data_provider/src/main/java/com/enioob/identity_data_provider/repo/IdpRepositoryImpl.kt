@@ -122,6 +122,12 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
     }
   }
   
+  override suspend fun deleteUser(userId: String): Result<UserDeleteMutation.Data> {
+    return safeGraphCall{
+      networking.apolloClient.mutation(UserDeleteMutation(userId))
+    }
+  }
+  
   override suspend fun refreshTokens(): Result<RefreshTokenMutation.Data> {
     return safeGraphCall{
       networking.apolloClient.mutation(RefreshTokenMutation(encryptedPrefs.getRefreshTokenToken()))

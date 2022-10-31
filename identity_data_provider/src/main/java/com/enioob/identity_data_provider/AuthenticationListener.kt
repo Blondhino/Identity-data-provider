@@ -14,4 +14,5 @@ interface AuthenticationListener {
   fun onError(message : String)
   fun onTokensRefreshed()
   fun onForgottenPasswordReset()
+  fun onUserDeleted()
 }

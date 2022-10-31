@@ -17,4 +17,5 @@ internal interface IdentityDataProviderContract {
   fun forgotPassword(email: String)
   fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
   fun refreshTokens()
+  fun deleteUser(userId: String)
 }

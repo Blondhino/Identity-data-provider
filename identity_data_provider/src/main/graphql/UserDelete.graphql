@@ -1,0 +1,5 @@
+mutation UserDelete($userDeleteId: ID!) {
+    user_delete(id: $userDeleteId) {
+      ...userFragment
+    }
+}

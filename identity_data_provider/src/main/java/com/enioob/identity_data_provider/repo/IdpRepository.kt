@@ -33,4 +33,5 @@ internal interface IdpRepository {
   ): Result<ResetForgottenPasswordMutation.Data>
   
   suspend fun refreshTokens() : Result<RefreshTokenMutation.Data>
+  suspend fun deleteUser(userId : String) : Result<UserDeleteMutation.Data>
 }
