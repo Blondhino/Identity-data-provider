@@ -23,4 +23,5 @@ internal interface IdpRepository {
   <ResetLoggedUserPasswordMutation.Data>
   suspend fun resendVerificationEmail(email: String) : Result<ResendVerificationEmailMutation.Data>
   suspend fun verifyEmail(token: String) : Result<IdpUser>
+  suspend fun forgotPassword(email: String) : Result<ForgotPasswordMutation.Data>
 }

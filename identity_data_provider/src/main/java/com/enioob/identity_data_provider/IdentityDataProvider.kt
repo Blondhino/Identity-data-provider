@@ -126,6 +126,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     }
   }
   
+  override fun forgotPassword(email: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.forgotPassword(email)
+        .onSuccess { authListener?.onForgotPasswordMailSent()}
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+    }
+  }
+  
   override fun resendVerificationEmail(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resendVerificationEmail(email)

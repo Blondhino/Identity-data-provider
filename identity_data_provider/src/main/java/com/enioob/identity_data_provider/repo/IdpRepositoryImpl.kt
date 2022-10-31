@@ -96,6 +96,10 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
     return Result.failure(Throwable(UNKNOWN_ERROR))
   }
   
+  override suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data> {
+  return safeGraphCall {networking.apolloClient.mutation(ForgotPasswordMutation(email))}
+  }
+  
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {
     return safeGraphCall {
       networking.apolloClient.mutation(LoginMutation(LoginInputType(email, password)))
