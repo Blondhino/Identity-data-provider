@@ -61,9 +61,7 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   override fun getRefreshToken() = encryptedPrefs.getRefreshTokenToken()
   
   override suspend fun registerByEmailAndPassword(
-    email: String,
-    password: String,
-    confirmedPassword: String
+    email: String, password: String, confirmedPassword: String
   ): Result<RegisterMutation.Data> {
     return safeGraphCall {
       networking.apolloClient.mutation(
@@ -72,21 +70,20 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
     }
   }
   
-  override suspend fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String) {
-    Log.d("onPassReset","called")
-    safeGraphCall {
+  override suspend fun resetLoggedUserPassword(
+    password: String,
+    confirmedPassword: String,
+    oldPassword: String
+  ): Result<ResetLoggedUserPasswordMutation.Data> {
+    return safeGraphCall {
       networking.apolloClient.mutation(
         ResetLoggedUserPasswordMutation(
           ResetLoggedUserPasswordInputTypes(
-            password,
-            confirmedPassword,
-            oldPassword
+            password, confirmedPassword, oldPassword
           )
         )
       )
     }
-      .onSuccess { Log.d("onPassReset","suc") }
-      .onFailure { Log.d("onPassReset", "failure: "+it.message) }
   }
   
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {
