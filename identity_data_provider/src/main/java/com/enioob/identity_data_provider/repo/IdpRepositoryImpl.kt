@@ -122,6 +122,12 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
     }
   }
   
+  override suspend fun refreshTokens(): Result<RefreshTokenMutation.Data> {
+    return safeGraphCall{
+      networking.apolloClient.mutation(RefreshTokenMutation(encryptedPrefs.getRefreshTokenToken()))
+    }
+  }
+  
   private suspend fun exchangeGoogleSdkAccessToken(googleTokenResponse: GoogleTokenResponse): Result<LoginResponse> {
     return safeApiCall {
       networking.api.exchangeTokens(

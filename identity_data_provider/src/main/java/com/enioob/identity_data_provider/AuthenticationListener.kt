@@ -12,5 +12,6 @@ interface AuthenticationListener {
   fun onEmailVerified(user : IdpUser)
   fun onForgotPasswordMailSent()
   fun onError(message : String)
+  fun onTokensRefreshed()
   fun onForgottenPasswordReset()
 }

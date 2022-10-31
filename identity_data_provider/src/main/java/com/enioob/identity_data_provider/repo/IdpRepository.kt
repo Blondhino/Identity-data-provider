@@ -31,4 +31,6 @@ internal interface IdpRepository {
     password: String,
     confirmedPassword: String
   ): Result<ResetForgottenPasswordMutation.Data>
+  
+  suspend fun refreshTokens() : Result<RefreshTokenMutation.Data>
 }
