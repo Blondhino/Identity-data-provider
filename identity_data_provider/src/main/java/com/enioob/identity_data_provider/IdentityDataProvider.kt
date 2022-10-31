@@ -110,6 +110,12 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     }
   }
   
+  override fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.resetLoggedUserPassword(password, confirmedPassword, oldPassword)
+    }
+  }
+  
   private fun registerGoogleAuthListeners() {
     
     googleLoginHelper.registerListener(object : GoogleLoginListener {

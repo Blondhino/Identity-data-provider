@@ -6,8 +6,10 @@ import com.enioob.identity_data_provider.ExchangeTokenRequest
 import com.enioob.identity_data_provider.GoogleTokenResponse
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.RegisterMutation
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.ResetLoggedUserPasswordMutation
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.LoginInputType
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.RegistrationInputType
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetLoggedUserPasswordInputTypes
 import com.enioob.identity_data_provider.getStringResourceByName
 import com.enioob.identity_data_provider.model.LoginResponse
 import com.enioob.identity_data_provider.networking.NetworkingModule
@@ -16,7 +18,7 @@ import com.enioob.identity_data_provider.utils.*
 
 internal class IdpRepositoryImpl(private val backendUrl: String, private val componentActivity: ComponentActivity) :
   IdpRepository {
-  private val networking = NetworkingModule(backendUrl)
+  private val networking = NetworkingModule(backendUrl, componentActivity.applicationContext)
   private val encryptedPrefs = EncryptedPrefsModule(componentActivity.applicationContext)
   val safeApiCall = SafeApiCall()
   val safeGraphCall = SafeGraphCall()
@@ -68,6 +70,23 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
         RegisterMutation(RegistrationInputType(email, password, confirmedPassword))
       )
     }
+  }
+  
+  override suspend fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String) {
+    Log.d("onPassReset","called")
+    safeGraphCall {
+      networking.apolloClient.mutation(
+        ResetLoggedUserPasswordMutation(
+          ResetLoggedUserPasswordInputTypes(
+            password,
+            confirmedPassword,
+            oldPassword
+          )
+        )
+      )
+    }
+      .onSuccess { Log.d("onPassReset","suc") }
+      .onFailure { Log.d("onPassReset", "failure: "+it.message) }
   }
   
   override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {

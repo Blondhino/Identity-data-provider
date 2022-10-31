@@ -17,5 +17,6 @@ internal interface IdpRepository {
     password: String,
     confirmedPassword: String
   ): Result<RegisterMutation.Data>
-  suspend fun loginByEmailAndPassword(email: String, password: String) : Result<LoginMutation.Data>
+  suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data>
+  suspend fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String)
 }
