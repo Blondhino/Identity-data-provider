@@ -1,13 +1,11 @@
 package com.enioob.identity_data_provider.repo
 
 import androidx.activity.ComponentActivity
+import com.apollographql.apollo3.api.Optional
 import com.enioob.identity_data_provider.ExchangeTokenRequest
 import com.enioob.identity_data_provider.GoogleTokenResponse
 import com.enioob.identity_data_provider.com.enioob.identity_data_provider.*
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.LoginInputType
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.RegistrationInputType
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetForgottenPasswordInputTypes
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.ResetLoggedUserPasswordInputTypes
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.type.*
 import com.enioob.identity_data_provider.getStringResourceByName
 import com.enioob.identity_data_provider.model.IdpUser
 import com.enioob.identity_data_provider.model.LoginResponse
@@ -108,28 +106,49 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   }
   
   override suspend fun resetForgottenPassword(
-    token: String,
-    password: String,
-    confirmedPassword: String
+    token: String, password: String, confirmedPassword: String
   ): Result<ResetForgottenPasswordMutation.Data> {
     return safeGraphCall {
       networking.apolloClient.mutation(
         ResetForgottenPasswordMutation(
-          ResetForgottenPasswordInputTypes
-            (token, password, confirmedPassword)
+          ResetForgottenPasswordInputTypes(token, password, confirmedPassword)
         )
       )
     }
   }
   
   override suspend fun deleteUser(userId: String): Result<UserDeleteMutation.Data> {
-    return safeGraphCall{
+    return safeGraphCall {
       networking.apolloClient.mutation(UserDeleteMutation(userId))
     }
   }
   
+  override suspend fun updateUser(
+    id: String,
+    email: String?,
+    phone: String?,
+    name: String?,
+    nickName: String?,
+    avatarUrl: String?,
+    claims: String?,
+    status: String?
+  ): Result<IdpUser> {
+    safeGraphCall {
+      networking.apolloClient.mutation(UserUpdateMutation(id, UserInputType(Optional.present(email),
+        Optional.present(phone),
+        Optional.present(name),
+        Optional.present(nickName),
+        Optional.present(avatarUrl),
+        Optional.present(claims),
+        UserStatus.knownValues().find { it.name == status.orEmpty() } ?: UserStatus.UNKNOWN__)))
+    }
+      .onSuccess { return Result.success(it.user_update.userFragment.toIdpUser()) }
+      .onFailure { return Result.failure(Throwable(it.message.orEmpty())) }
+    return Result.failure(Throwable(UNKNOWN_ERROR))
+  }
+  
   override suspend fun refreshTokens(): Result<RefreshTokenMutation.Data> {
-    return safeGraphCall{
+    return safeGraphCall {
       networking.apolloClient.mutation(RefreshTokenMutation(encryptedPrefs.getRefreshTokenToken()))
     }
   }

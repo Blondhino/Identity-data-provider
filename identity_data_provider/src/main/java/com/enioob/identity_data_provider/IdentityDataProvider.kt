@@ -71,14 +71,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   
   private fun exchangeTokens(sdkToken: String, authProvider: AuthProvider) = CoroutineScope(Dispatchers.Main).launch {
     idpRepository.exchangeTokens(sdkToken, authProvider).onSuccess {
-        authListener?.onLoadingStatusChanged(false)
-        authListener?.onLogIn()
-        idpRepository.saveTokens(it)
-      }.onFailure {
-        authListener?.onLoadingStatusChanged(false)
-        authListener?.onError(it.message.toString())
-        
-      }
+      authListener?.onLoadingStatusChanged(false)
+      authListener?.onLogIn()
+      idpRepository.saveTokens(it)
+    }.onFailure {
+      authListener?.onLoadingStatusChanged(false)
+      authListener?.onError(it.message.toString())
+      
+    }
   }
   
   override fun registerAuthenticationListener(authenticationListener: AuthenticationListener) {
@@ -98,9 +98,9 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     CoroutineScope(Dispatchers.Main).launch {
       authListener?.onLoadingStatusChanged(true)
       idpRepository.loginByEmailAndPassword(email, password).onSuccess {
-          authListener?.onLogIn()
-          idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
-        }.onFailure { authListener?.onError(it.message.orEmpty()) }
+        authListener?.onLogIn()
+        idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
+      }.onFailure { authListener?.onError(it.message.orEmpty()) }
       authListener?.onLoadingStatusChanged(false)
     }
   }
@@ -136,13 +136,13 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   override fun refreshTokens() {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.refreshTokens().onSuccess {
-          idpRepository.saveTokens(
-            LoginResponse(
-              accessToken = it.refresh_token.accessToken, refreshToken = it.refresh_token.refreshToken
-            )
+        idpRepository.saveTokens(
+          LoginResponse(
+            accessToken = it.refresh_token.accessToken, refreshToken = it.refresh_token.refreshToken
           )
-          authListener?.onTokensRefreshed()
-        }.onFailure { authListener?.onError(it.message.orEmpty()) }
+        )
+        authListener?.onTokensRefreshed()
+      }.onFailure { authListener?.onError(it.message.orEmpty()) }
     }
   }
   
@@ -150,6 +150,23 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.deleteUser(userId)
         .onSuccess { authListener?.onUserDeleted() }
+        .onFailure { authListener?.onError(it.message.orEmpty()) }
+    }
+  }
+  
+  override fun updateUser(
+    id: String,
+    email: String?,
+    phone: String?,
+    name: String?,
+    nickName: String?,
+    avatarUrl: String?,
+    claims: String?,
+    status: String?
+  ) {
+    CoroutineScope(Dispatchers.Main).launch {
+      idpRepository.updateUser(id,email, phone, name, nickName, avatarUrl, claims, status)
+        .onSuccess { authListener?.onUserUpdated(it) }
         .onFailure { authListener?.onError(it.message.orEmpty()) }
     }
   }

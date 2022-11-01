@@ -18,20 +18,26 @@ internal interface IdpRepository {
   
   suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data>
   suspend fun resetLoggedUserPassword(
-    password: String,
-    confirmedPassword: String,
-    oldPassword: String
+    password: String, confirmedPassword: String, oldPassword: String
   ): Result<ResetLoggedUserPasswordMutation.Data>
   
   suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data>
   suspend fun verifyEmail(token: String): Result<IdpUser>
   suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data>
   suspend fun resetForgottenPassword(
-    token: String,
-    password: String,
-    confirmedPassword: String
+    token: String, password: String, confirmedPassword: String
   ): Result<ResetForgottenPasswordMutation.Data>
   
-  suspend fun refreshTokens() : Result<RefreshTokenMutation.Data>
-  suspend fun deleteUser(userId : String) : Result<UserDeleteMutation.Data>
+  suspend fun refreshTokens(): Result<RefreshTokenMutation.Data>
+  suspend fun deleteUser(userId: String): Result<UserDeleteMutation.Data>
+  suspend fun updateUser(
+    id:String,
+    email: String? = null,
+    phone: String? = null,
+    name: String? = null,
+    nickName: String? = null,
+    avatarUrl: String? = null,
+    claims: String? = null,
+    status: String? = null,
+  ): Result<IdpUser>
 }

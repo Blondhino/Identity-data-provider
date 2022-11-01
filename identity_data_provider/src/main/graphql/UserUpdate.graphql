@@ -1,0 +1,5 @@
+mutation UserUpdate($userUpdateId: ID!, $input: UserInputType!) {
+    user_update(id: $userUpdateId, input: $input) {
+        ...userFragment
+    }
+}

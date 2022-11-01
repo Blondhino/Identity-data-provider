@@ -3,15 +3,3 @@ mutation VerifyEmail($token: String!) {
         ...userFragment
     }
 }
-fragment userFragment on UserOutputType{
-    id
-    created_at
-    updated_at
-    email
-    phone
-    name
-    nick_name
-    avatar_url
-    claims
-    status
-}

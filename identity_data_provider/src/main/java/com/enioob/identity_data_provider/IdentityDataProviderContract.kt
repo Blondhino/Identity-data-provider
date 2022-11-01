@@ -2,6 +2,7 @@ package com.enioob.identity_data_provider
 
 import androidx.activity.ComponentActivity
 
+
 internal interface IdentityDataProviderContract {
   fun loginWithFacebook()
   fun loginWithGoogle()
@@ -18,4 +19,14 @@ internal interface IdentityDataProviderContract {
   fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
   fun refreshTokens()
   fun deleteUser(userId: String)
+  fun updateUser(
+    id:String,
+    email: String? = null,
+    phone: String? = null,
+    name: String? = null,
+    nickName: String? = null,
+    avatarUrl: String? = null,
+    claims: String? = null,
+    status: String? = null,
+  )
 }
