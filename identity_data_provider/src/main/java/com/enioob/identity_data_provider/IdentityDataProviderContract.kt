@@ -20,7 +20,7 @@ internal interface IdentityDataProviderContract {
   fun refreshTokens()
   fun deleteUser(userId: String)
   fun updateUser(
-    id:String,
+    id: String,
     email: String? = null,
     phone: String? = null,
     name: String? = null,
