@@ -10,7 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/identity_data_provider" />
+            <option value="$PROJECT_DIR$/identity_data_provider_lib" />
           </set>
         </option>
       </GradleProjectSettings>
