@@ -1,6 +1,7 @@
 package com.enioob.identity_data_provider
 
 import androidx.activity.ComponentActivity
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
 
 
 internal interface IdentityDataProviderContract {
@@ -10,7 +11,7 @@ internal interface IdentityDataProviderContract {
   fun isUserAuthenticated(): Boolean
   fun registerHostingActivity(componentActivity: ComponentActivity)
   fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String)
-  fun loginByEmailAndPassword(email: String, password: String)
+  suspend fun loginByEmailAndPassword(email: String, password: String) : Result<LoginMutation.Data>
   fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String)
   fun resendVerificationEmail(email: String)
   fun verifyEmail(token: String)

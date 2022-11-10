@@ -1,6 +1,7 @@
 package com.enioob.identity_data_provider
 
 import androidx.activity.ComponentActivity
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
 import com.enioob.identity_data_provider.facebook.FacebookLoginHelper
 import com.enioob.identity_data_provider.facebook.FacebookLoginHelperImpl
 import com.enioob.identity_data_provider.facebook.FacebookLoginListener
@@ -137,17 +138,15 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   
   override fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.registerByEmailAndPassword(email, password, confirmedPassword).onSuccess { onRegisterListener?.onRegister(it) }
+      idpRepository.registerByEmailAndPassword(email, password, confirmedPassword)
+        .onSuccess { onRegisterListener?.onRegister(it) }
         .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
-  override fun loginByEmailAndPassword(email: String, password: String) {
-    CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.loginByEmailAndPassword(email, password).onSuccess {
-        onLogInListener?.onLogIn()
-        idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
-      }.onFailure { onErrorListener?.onError(it.message.orEmpty()) }
+  override suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data> {
+    return idpRepository.loginByEmailAndPassword(email, password).onSuccess {
+      idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
     }
   }
   
@@ -175,8 +174,12 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   override fun resetForgottenPassword(token: String, password: String, confirmedPassword: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resetForgottenPassword(token, password, confirmedPassword)
-        .onSuccess { onForgottenPasswordResetListener?.onForgottenPasswordReset() }.onFailure { onErrorListener?.onError(it.message.orEmpty
-          ()) }
+        .onSuccess { onForgottenPasswordResetListener?.onForgottenPasswordReset() }.onFailure {
+          onErrorListener?.onError(
+            it.message.orEmpty
+              ()
+          )
+        }
     }
   }
   
