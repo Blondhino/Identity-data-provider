@@ -19,7 +19,67 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
   private lateinit var facebookLoginHelper: FacebookLoginHelper
   private lateinit var componentActivity: ComponentActivity
   private val idpRepository: IdpRepository by lazy { IdpRepositoryImpl(backendUrl, componentActivity) }
-  private var authListener: AuthenticationListener? = null
+  private var onLogInListener: OnLogInListener? = null
+  private var onRegisterListener: OnRegisterListener? = null
+  private var onLogoutListener: OnLogoutListener? = null
+  private var onPasswordResetListener: OnPasswordResetListener? = null
+  private var onVerificationEmailResentListener: OnVerificationEmailResentListener? = null
+  private var onEmailVerifiedListener: OnEmailVerifiedListener? = null
+  private var onForgotPasswordMailSentListener: OnForgotPasswordMailSentListener? = null
+  private var onErrorListener: OnErrorListener? = null
+  private var onUserUpdatedListener: OnUserUpdatedListener? = null
+  private var onTokensRefreshedListener: OnTokensRefreshedListener? = null
+  private var onForgottenPasswordResetListener: OnForgottenPasswordResetListener? = null
+  private var onUserDeletedListener: OnUserDeletedListener? = null
+  
+  fun setOnLoginListener(onLogInListener: OnLogInListener) {
+    this.onLogInListener = onLogInListener
+  }
+  
+  fun setOnRegisterListener(onRegisterListener: OnRegisterListener) {
+    this.onRegisterListener = onRegisterListener
+  }
+  
+  fun setOnLogoutListener(onLogoutListener: OnLogoutListener) {
+    this.onLogoutListener = onLogoutListener
+  }
+  
+  fun setOnPasswordResetListener(onPasswordResetListener: OnPasswordResetListener) {
+    this.onPasswordResetListener = onPasswordResetListener
+  }
+  
+  fun setOnVerificationEmailResentListener(onVerificationEmailResentListener: OnVerificationEmailResentListener) {
+    this.onVerificationEmailResentListener = onVerificationEmailResentListener
+  }
+  
+  fun setOnEmailVerifiedListener(onEmailVerifiedListener: OnEmailVerifiedListener) {
+    this.onEmailVerifiedListener = onEmailVerifiedListener
+  }
+  
+  fun setOnForgotPasswordMailSentListener(onForgotPasswordMailSentListener: OnForgotPasswordMailSentListener) {
+    this.onForgotPasswordMailSentListener = onForgotPasswordMailSentListener
+  }
+  
+  fun setOnErrorListener(onErrorListener: OnErrorListener) {
+    this.onErrorListener = onErrorListener
+  }
+  
+  fun setOnUserUpdatedListener(onUserUpdatedListener: OnUserUpdatedListener) {
+    this.onUserUpdatedListener = onUserUpdatedListener
+  }
+  
+  fun setOnTokensRefreshedListener(onTokensRefreshedListener: OnTokensRefreshedListener) {
+    this.onTokensRefreshedListener = onTokensRefreshedListener
+  }
+  
+  fun setOnForgottenPasswordResetListener(onForgottenPasswordResetListener: OnForgottenPasswordResetListener) {
+    this.onForgottenPasswordResetListener = onForgottenPasswordResetListener
+  }
+  
+  fun setOnUserDeletedListener(onUserDeletedListener: OnUserDeletedListener) {
+    this.onUserDeletedListener = onUserDeletedListener
+  }
+  
   
   override fun loginWithFacebook() {
     facebookLoginHelper.loginByFacebook()
@@ -33,7 +93,7 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     googleLoginHelper.googleLogout()
     facebookLoginHelper.facebookLogout()
     idpRepository.logout()
-    authListener?.onLogOut()
+    onLogoutListener?.onLogOut()
   }
   
   override fun isUserAuthenticated(): Boolean {
@@ -44,92 +104,79 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     this.componentActivity = componentActivity
     googleLoginHelper = GoogleLoginHelperImpl(componentActivity)
     facebookLoginHelper = FacebookLoginHelperImpl(componentActivity)
-    registerGoogleAuthListeners()
-    registerFacebookAuthListeners()
+    registerGoogleonErrorListeners()
+    registerFacebookonErrorListeners()
   }
   
-  private fun registerFacebookAuthListeners() {
+  private fun registerFacebookonErrorListeners() {
     facebookLoginHelper.registerFacebookLoginListener(object : FacebookLoginListener {
       override fun onSuccess(sdkToken: String) {
         exchangeTokens(sdkToken, AuthProvider.FACEBOOK)
       }
       
       override fun onError(error: String) {
-        authListener?.onError(error)
+        onErrorListener?.onError(error)
       }
       
-      override fun onLoginProcessStart() {
-        authListener?.onLoadingStatusChanged(true)
-      }
+      override fun onLoginProcessStart() {}
       
-      override fun onLoginProcessEnd() {
-        authListener?.onLoadingStatusChanged(false)
-      }
+      override fun onLoginProcessEnd() {}
       
     })
   }
   
   private fun exchangeTokens(sdkToken: String, authProvider: AuthProvider) = CoroutineScope(Dispatchers.Main).launch {
     idpRepository.exchangeTokens(sdkToken, authProvider).onSuccess {
-      authListener?.onLoadingStatusChanged(false)
-      authListener?.onLogIn()
+      onLogInListener?.onLogIn()
       idpRepository.saveTokens(it)
     }.onFailure {
-      authListener?.onLoadingStatusChanged(false)
-      authListener?.onError(it.message.toString())
+      onErrorListener?.onError(it.message.toString())
       
     }
   }
   
-  override fun registerAuthenticationListener(authenticationListener: AuthenticationListener) {
-    authListener = authenticationListener
-  }
-  
   override fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      authListener?.onLoadingStatusChanged(true)
-      idpRepository.registerByEmailAndPassword(email, password, confirmedPassword).onSuccess { authListener?.onRegister(it) }
-        .onFailure { authListener?.onError(it.message.orEmpty()) }
-      authListener?.onLoadingStatusChanged(false)
+      idpRepository.registerByEmailAndPassword(email, password, confirmedPassword).onSuccess { onRegisterListener?.onRegister(it) }
+        .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun loginByEmailAndPassword(email: String, password: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      authListener?.onLoadingStatusChanged(true)
       idpRepository.loginByEmailAndPassword(email, password).onSuccess {
-        authListener?.onLogIn()
+        onLogInListener?.onLogIn()
         idpRepository.saveTokens(LoginResponse(accessToken = it.login.accessToken, refreshToken = it.login.refreshToken))
-      }.onFailure { authListener?.onError(it.message.orEmpty()) }
-      authListener?.onLoadingStatusChanged(false)
+      }.onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resetLoggedUserPassword(password, confirmedPassword, oldPassword)
-        .onSuccess { authListener?.onPasswordReset() }.onFailure { authListener?.onError(it.message.orEmpty()) }
+        .onSuccess { onPasswordResetListener?.onPasswordReset() }.onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun verifyEmail(token: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.verifyEmail(token).onSuccess { authListener?.onEmailVerified(it) }
-        .onFailure { authListener?.onError(it.message.orEmpty()) }
+      idpRepository.verifyEmail(token).onSuccess { onEmailVerifiedListener?.onEmailVerified(it) }
+        .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun forgotPassword(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.forgotPassword(email).onSuccess { authListener?.onForgotPasswordMailSent() }
-        .onFailure { authListener?.onError(it.message.orEmpty()) }
+      idpRepository.forgotPassword(email).onSuccess { onForgotPasswordMailSentListener?.onForgotPasswordMailSent() }
+        .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun resetForgottenPassword(token: String, password: String, confirmedPassword: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.resetForgottenPassword(token, password, confirmedPassword)
-        .onSuccess { authListener?.onForgottenPasswordReset() }.onFailure { authListener?.onError(it.message.orEmpty()) }
+        .onSuccess { onForgottenPasswordResetListener?.onForgottenPasswordReset() }.onFailure { onErrorListener?.onError(it.message.orEmpty
+          ()) }
     }
   }
   
@@ -141,16 +188,16 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
             accessToken = it.refresh_token.accessToken, refreshToken = it.refresh_token.refreshToken
           )
         )
-        authListener?.onTokensRefreshed()
-      }.onFailure { authListener?.onError(it.message.orEmpty()) }
+        onTokensRefreshedListener?.onTokensRefreshed()
+      }.onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun deleteUser(userId: String) {
     CoroutineScope(Dispatchers.Main).launch {
       idpRepository.deleteUser(userId)
-        .onSuccess { authListener?.onUserDeleted() }
-        .onFailure { authListener?.onError(it.message.orEmpty()) }
+        .onSuccess { onUserDeletedListener?.onUserDeleted() }
+        .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
@@ -165,20 +212,20 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     status: String?
   ) {
     CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.updateUser(id,email, phone, name, nickName, avatarUrl, claims, status)
-        .onSuccess { authListener?.onUserUpdated(it) }
-        .onFailure { authListener?.onError(it.message.orEmpty()) }
+      idpRepository.updateUser(id, email, phone, name, nickName, avatarUrl, claims, status)
+        .onSuccess { onUserUpdatedListener?.onUserUpdated(it) }
+        .onFailure { onErrorListener?.onError(it.message.orEmpty()) }
     }
   }
   
   override fun resendVerificationEmail(email: String) {
     CoroutineScope(Dispatchers.Main).launch {
-      idpRepository.resendVerificationEmail(email).onSuccess { authListener?.onForgottenPasswordReset() }
-        .onFailure { authListener?.onError(it.message.toString()) }
+      idpRepository.resendVerificationEmail(email).onSuccess { onForgottenPasswordResetListener?.onForgottenPasswordReset() }
+        .onFailure { onErrorListener?.onError(it.message.toString()) }
     }
   }
   
-  private fun registerGoogleAuthListeners() {
+  private fun registerGoogleonErrorListeners() {
     
     googleLoginHelper.registerListener(object : GoogleLoginListener {
       override fun onSuccess(sdkToken: String) {
@@ -186,17 +233,13 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
       }
       
       override fun onError(error: String) {
-        authListener?.onError(error)
+        onErrorListener?.onError(error)
         onLoginProcessEnd()
       }
       
-      override fun onLoginProcessStart() {
-        authListener?.onLoadingStatusChanged(true)
-      }
+      override fun onLoginProcessStart() {}
       
-      override fun onLoginProcessEnd() {
-        authListener?.onLoadingStatusChanged(false)
-      }
+      override fun onLoginProcessEnd() {}
       
     })
   }
