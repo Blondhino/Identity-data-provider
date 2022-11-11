@@ -49,6 +49,8 @@ internal class GoogleLoginHelperImpl(val componentActivity: ComponentActivity) :
   }
   
   override fun loginByGoogle() {
+    Log.d("clientSecrets", googleClientId)
+    
     if (googleClientId == GOOGLE_CLIENT_ID_NOT_PROVIDED) {
       throw IdpCredentialsException(
         "Looks like you are trying to use google login without providing google_client_id. Read " +
