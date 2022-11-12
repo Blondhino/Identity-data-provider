@@ -39,7 +39,7 @@ afterEvaluate {
         
         groupId = 'com.github.Blondhino'
         artifactId = 'identity-data-provider'
-        version = '0.9.991'
+        version = '0.9.992'
       }
     }
   }

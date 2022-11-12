@@ -7,9 +7,9 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.enioob.identity_data_provider.GoogleLoginHelper
-import com.enioob.identity_data_provider.utils.IdpCredentialsException
 import com.enioob.identity_data_provider.getStringResourceByName
 import com.enioob.identity_data_provider.utils.GOOGLE_CLIENT_ID
+import com.enioob.identity_data_provider.utils.IdpCredentialsException
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient

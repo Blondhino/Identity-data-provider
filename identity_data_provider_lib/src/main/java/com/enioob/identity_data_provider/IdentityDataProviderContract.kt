@@ -1,7 +1,8 @@
 package com.enioob.identity_data_provider
 
 import androidx.activity.ComponentActivity
-import com.enioob.identity_data_provider.com.enioob.identity_data_provider.LoginMutation
+import com.enioob.identity_data_provider.com.enioob.identity_data_provider.*
+import com.enioob.identity_data_provider.model.IdpUser
 
 
 internal interface IdentityDataProviderContract {
@@ -10,16 +11,21 @@ internal interface IdentityDataProviderContract {
   fun logout()
   fun isUserAuthenticated(): Boolean
   fun registerHostingActivity(componentActivity: ComponentActivity)
-  fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String)
-  suspend fun loginByEmailAndPassword(email: String, password: String) : Result<LoginMutation.Data>
-  fun resetLoggedUserPassword(password: String, confirmedPassword: String, oldPassword: String)
-  fun resendVerificationEmail(email: String)
-  fun verifyEmail(token: String)
-  fun forgotPassword(email: String)
-  fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
-  fun refreshTokens()
-  fun deleteUser(userId: String)
-  fun updateUser(
+  suspend fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String): Result<IdpUser>
+  suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data>
+  suspend fun resetLoggedUserPassword(
+    password: String,
+    confirmedPassword: String,
+    oldPassword: String
+  ): Result<ResetLoggedUserPasswordMutation.Data>
+  
+  suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data>
+  suspend fun verifyEmail(token: String): Result<IdpUser>
+  suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data>
+  suspend fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
+  suspend fun refreshTokens(): Result<RefreshTokenMutation.Data>
+  suspend fun deleteUser(userId: String): Result<UserDeleteMutation.Data>
+  suspend fun updateUser(
     id: String,
     email: String? = null,
     phone: String? = null,
@@ -28,5 +34,5 @@ internal interface IdentityDataProviderContract {
     avatarUrl: String? = null,
     claims: String? = null,
     status: String? = null,
-  )
+  ): Result<IdpUser>
 }
