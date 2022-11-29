@@ -113,8 +113,8 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     return idpRepository.forgotPassword(email)
   }
   
-  override suspend fun resetForgottenPassword(token: String, password: String, confirmedPassword: String) {
-    idpRepository.resetForgottenPassword(token, password, confirmedPassword)
+  override suspend fun resetForgottenPassword(token: String, password: String, confirmedPassword: String): Result<ResetForgottenPasswordMutation.Data> {
+    return idpRepository.resetForgottenPassword(token, password, confirmedPassword)
   }
   
   override suspend fun refreshTokens(): Result<RefreshTokenMutation.Data> {

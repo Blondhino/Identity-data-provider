@@ -22,7 +22,9 @@ internal interface IdentityDataProviderContract {
   suspend fun resendVerificationEmail(email: String): Result<ResendVerificationEmailMutation.Data>
   suspend fun verifyEmail(token: String): Result<IdpUser>
   suspend fun forgotPassword(email: String): Result<ForgotPasswordMutation.Data>
-  suspend fun resetForgottenPassword(token: String, password: String, confirmedPassword: String)
+  suspend fun resetForgottenPassword(token: String, password: String, confirmedPassword: String):
+    Result<ResetForgottenPasswordMutation.Data>
+  
   suspend fun refreshTokens(): Result<RefreshTokenMutation.Data>
   suspend fun deleteUser(userId: String): Result<UserDeleteMutation.Data>
   suspend fun updateUser(
