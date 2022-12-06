@@ -10,6 +10,8 @@ internal interface IdentityDataProviderContract {
   fun loginWithGoogle()
   fun logout()
   fun isUserAuthenticated(): Boolean
+  fun getAccessToken() : String
+  fun getRefreshToken() : String
   fun registerHostingActivity(componentActivity: ComponentActivity)
   suspend fun registerByEmailAndPassword(email: String, password: String, confirmedPassword: String): Result<IdpUser>
   suspend fun loginByEmailAndPassword(email: String, password: String): Result<LoginMutation.Data>

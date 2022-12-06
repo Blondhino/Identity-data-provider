@@ -30,7 +30,7 @@ internal class EncryptedPrefsModule(context: Context) {
     return sharedPreferences.getString(ENCRYPTED_TOKEN, null) ?: ""
   }
   
-  fun getRefreshTokenToken(): String {
+  fun getRefreshToken(): String {
     return sharedPreferences.getString(ENCRYPTED_REFRESH_TOKEN, null) ?: ""
   }
   

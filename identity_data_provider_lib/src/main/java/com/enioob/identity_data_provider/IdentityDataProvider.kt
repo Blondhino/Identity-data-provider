@@ -52,6 +52,14 @@ class IdentityDataProvider(val backendUrl: String) : IdentityDataProviderContrac
     return idpRepository.isUserAuthenticated()
   }
   
+  override fun getAccessToken(): String {
+    return idpRepository.getAccessToken()
+  }
+  
+  override fun getRefreshToken(): String {
+    return idpRepository.getRefreshToken()
+  }
+  
   override fun registerHostingActivity(componentActivity: ComponentActivity) {
     this.componentActivity = componentActivity
     googleLoginHelper = GoogleLoginHelperImpl(componentActivity)

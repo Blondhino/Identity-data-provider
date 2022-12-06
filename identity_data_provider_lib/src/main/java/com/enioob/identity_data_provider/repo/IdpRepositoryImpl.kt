@@ -46,7 +46,7 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   }
   
   override fun isUserAuthenticated(): Boolean {
-    return encryptedPrefs.getToken().isNotEmpty() && encryptedPrefs.getRefreshTokenToken().isNotEmpty()
+    return encryptedPrefs.getToken().isNotEmpty() && encryptedPrefs.getRefreshToken().isNotEmpty()
   }
   
   override fun logout() {
@@ -56,7 +56,7 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   
   override fun getAccessToken() = encryptedPrefs.getToken()
   
-  override fun getRefreshToken() = encryptedPrefs.getRefreshTokenToken()
+  override fun getRefreshToken() = encryptedPrefs.getRefreshToken()
   
   override suspend fun registerByEmailAndPassword(
     email: String, password: String, confirmedPassword: String
@@ -149,7 +149,7 @@ internal class IdpRepositoryImpl(private val backendUrl: String, private val com
   
   override suspend fun refreshTokens(): Result<RefreshTokenMutation.Data> {
     return safeGraphCall {
-      networking.apolloClient.mutation(RefreshTokenMutation(encryptedPrefs.getRefreshTokenToken()))
+      networking.apolloClient.mutation(RefreshTokenMutation(encryptedPrefs.getRefreshToken()))
     }
   }
   
